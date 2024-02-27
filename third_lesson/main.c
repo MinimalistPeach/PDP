@@ -97,7 +97,7 @@ int main(void)
     for (i = 0; i < SAMPLE_SIZE; ++i)
     {
         host_a[i] = i;
-        host_b[i] = i;
+        host_b[i] = (int) i / 2;
     }
 
     // Create the device buffer
