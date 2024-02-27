@@ -2,6 +2,7 @@
 
 #define CL_TARGET_OPENCL_VERSION 220
 #include <CL/cl.h>
+#include <CL/cl_platform.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,26 +87,28 @@ int main(void)
     cl_kernel kernel = clCreateKernel(program, "vector_addition", NULL);
 
     // Create the host buffer and initialize it
-    int *host_buffer = (int *)malloc(SAMPLE_SIZE * sizeof(int));
+    cl_float4 *host_buffer = (cl_float4 *)malloc(SAMPLE_SIZE * sizeof(cl_float4));
     for (i = 0; i < SAMPLE_SIZE; ++i)
     {
-        host_buffer[i] = i;
+        host_buffer[i] = (cl_float4){i + 1.0, i + 2.0, i + 3.0, i + 0.0};
     }
 
-    int *host_a = (int *)malloc(SAMPLE_SIZE * sizeof(int));
-    int *host_b = (int *)malloc(SAMPLE_SIZE * sizeof(int));
+    cl_float4 *host_a = (cl_float4 *)malloc(SAMPLE_SIZE * sizeof(cl_float4));
+    cl_float4 *host_b = (cl_float4 *)malloc(SAMPLE_SIZE * sizeof(cl_float4));
     for (i = 0; i < SAMPLE_SIZE; ++i)
     {
-        host_a[i] = i;
-        host_b[i] = (int) i / 2;
+        host_a[i] = (cl_float4){i + 1.0, i + 2.0, i + 3.0, i + 0.0};
+        host_b[i] =  (cl_float4){(i + 1.0) / 2, i + 2.0, (i + 3.0) / 3, i + 0.0};
     }
+
+
 
     // Create the device buffer
-    cl_mem device_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, SAMPLE_SIZE * sizeof(int), NULL, NULL);
+    cl_mem device_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, SAMPLE_SIZE * sizeof(cl_float4), NULL, NULL);
 
-    cl_mem device_a = clCreateBuffer(context, CL_MEM_READ_ONLY, SAMPLE_SIZE * sizeof(int), NULL, NULL);
+    cl_mem device_a = clCreateBuffer(context, CL_MEM_READ_ONLY, SAMPLE_SIZE * sizeof(cl_float4), NULL, NULL);
 
-    cl_mem device_b = clCreateBuffer(context, CL_MEM_READ_ONLY, SAMPLE_SIZE * sizeof(int), NULL, NULL);
+    cl_mem device_b = clCreateBuffer(context, CL_MEM_READ_ONLY, SAMPLE_SIZE * sizeof(cl_float4), NULL, NULL);
 
     // Set kernel arguments
     clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&device_a);
@@ -123,7 +126,7 @@ int main(void)
         device_buffer,
         CL_FALSE,
         0,
-        SAMPLE_SIZE * sizeof(int),
+        SAMPLE_SIZE * sizeof(cl_float4),
         host_buffer,
         0,
         NULL,
@@ -134,7 +137,7 @@ int main(void)
         device_a,
         CL_FALSE,
         0,
-        SAMPLE_SIZE * sizeof(int),
+        SAMPLE_SIZE * sizeof(cl_float4),
         host_a,
         0,
         NULL,
@@ -145,7 +148,7 @@ int main(void)
         device_b,
         CL_FALSE,
         0,
-        SAMPLE_SIZE * sizeof(int),
+        SAMPLE_SIZE * sizeof(cl_float4),
         host_b,
         0,
         NULL,
@@ -203,7 +206,7 @@ int main(void)
         device_buffer,
         CL_TRUE,
         0,
-        SAMPLE_SIZE * sizeof(int),
+        SAMPLE_SIZE * sizeof(cl_float4),
         host_buffer,
         0,
         NULL,
@@ -214,7 +217,7 @@ int main(void)
         device_a,
         CL_TRUE,
         0,
-        SAMPLE_SIZE * sizeof(int),
+        SAMPLE_SIZE * sizeof(cl_float4),
         host_a,
         0,
         NULL,
@@ -225,7 +228,7 @@ int main(void)
         device_b,
         CL_TRUE,
         0,
-        SAMPLE_SIZE * sizeof(int),
+        SAMPLE_SIZE * sizeof(cl_float4),
         host_b,
         0,
         NULL,
@@ -235,7 +238,10 @@ int main(void)
     {
        // printf("A: [%d] = %d, ", i, host_a[i]);
        // printf("B: [%d] = %d, ", i, host_b[i]);
-       // printf("host buffer: [%d] = %d\n", i, host_buffer[i]);
+        printf("host buffer X: [%d] = %lf\n", i, host_buffer[i].x);
+        printf("host buffer Y: [%d] = %lf\n", i, host_buffer[i].y);
+        printf("host buffer Z: [%d] = %lf\n", i, host_buffer[i].z);
+        printf("host buffer W: [%d] = %lf\n", i, host_buffer[i].w);
     }
 
     // Release the resources

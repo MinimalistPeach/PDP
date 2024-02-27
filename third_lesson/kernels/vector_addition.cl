@@ -1,4 +1,4 @@
-__kernel void vector_addition(__global const int* a, __global const int* b, __global int* result, int n)
+__kernel void vector_addition(__global const float4* a, __global const float4* b, __global float4* result, int n)
 {
     int i = get_global_id(0);
     if (i < n) {
