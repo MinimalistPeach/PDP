@@ -1,6 +1,6 @@
 #include "gpu.h"
 const int SAMPLE_SIZE = 1000;
-void gpu_start()
+void gpu_start(Node *nodes, int num_nodes)
 {
 
     int i;
@@ -36,7 +36,7 @@ void gpu_start()
     cl_context context = clCreateContext(NULL, n_devices, &device_id, NULL, NULL, NULL);
 
     // Build the program
-    const char *kernel_code = load_kernel_source("kernels/vector_addition.cl", &error_code);
+    const char *kernel_code = load_kernel_source("kernels/bfs.cl", &error_code);
     if (error_code != 0)
     {
         printf("Source code loading error!\n");
@@ -76,35 +76,14 @@ void gpu_start()
         free(build_log);
         return 0;
     }
-    cl_kernel kernel = clCreateKernel(program, "vector_addition", NULL);
-
-    // Create the host buffer and initialize it
-    cl_float4 *host_buffer = (cl_float4 *)malloc(SAMPLE_SIZE * sizeof(cl_float4));
-    for (i = 0; i < SAMPLE_SIZE; ++i)
-    {
-        host_buffer[i] = (cl_float4){i + 1.0, i + 2.0, i + 3.0, i + 0.0};
-    }
-
-    cl_float4 *host_a = (cl_float4 *)malloc(SAMPLE_SIZE * sizeof(cl_float4));
-    cl_float4 *host_b = (cl_float4 *)malloc(SAMPLE_SIZE * sizeof(cl_float4));
-    for (i = 0; i < SAMPLE_SIZE; ++i)
-    {
-        host_a[i] = (cl_float4){i + 1.0, i + 2.0, i + 3.0, i + 0.0};
-        host_b[i] = (cl_float4){(i + 1.0) / 2, i + 2.0, (i + 3.0) / 3, i + 0.0};
-    }
+    cl_kernel kernel = clCreateKernel(program, "bfs", NULL);
 
     // Create the device buffer
-    cl_mem device_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, SAMPLE_SIZE * sizeof(cl_float4), NULL, NULL);
-
-    cl_mem device_a = clCreateBuffer(context, CL_MEM_READ_ONLY, SAMPLE_SIZE * sizeof(cl_float4), NULL, NULL);
-
-    cl_mem device_b = clCreateBuffer(context, CL_MEM_READ_ONLY, SAMPLE_SIZE * sizeof(cl_float4), NULL, NULL);
+    cl_mem device_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE, SAMPLE_SIZE * sizeof(Node), NULL, NULL);
 
     // Set kernel arguments
-    clSetKernelArg(kernel, 0, sizeof(cl_mem), (void *)&device_a);
-    clSetKernelArg(kernel, 1, sizeof(cl_mem), (void *)&device_b);
-    clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&device_buffer);
-    clSetKernelArg(kernel, 3, sizeof(int), (void *)&SAMPLE_SIZE);
+    clSetKernelArg(kernel, 0, sizeof(Node), (void *)&nodes);
+    clSetKernelArg(kernel, 1, sizeof(int), (void *)&num_nodes);
 
     // Create the command queue
     cl_command_queue command_queue = clCreateCommandQueue(
@@ -117,29 +96,7 @@ void gpu_start()
         CL_FALSE,
         0,
         SAMPLE_SIZE * sizeof(cl_float4),
-        host_buffer,
-        0,
-        NULL,
-        NULL);
-
-    clEnqueueWriteBuffer(
-        command_queue,
-        device_a,
-        CL_FALSE,
-        0,
-        SAMPLE_SIZE * sizeof(cl_float4),
-        host_a,
-        0,
-        NULL,
-        NULL);
-
-    clEnqueueWriteBuffer(
-        command_queue,
-        device_b,
-        CL_FALSE,
-        0,
-        SAMPLE_SIZE * sizeof(cl_float4),
-        host_b,
+        nodes,
         0,
         NULL,
         NULL);
@@ -188,7 +145,7 @@ void gpu_start()
         sizeof(endNs),
         &endNs,
         NULL);
-    printf("Runtime    : %lu ms\n", (endNs - startNs) / 1000);
+    printf("GPU runtime    : %lu ms\n", (endNs - startNs) / 1000);
 
     // Host buffer <- Device buffer
     clEnqueueReadBuffer(
@@ -197,42 +154,10 @@ void gpu_start()
         CL_TRUE,
         0,
         SAMPLE_SIZE * sizeof(cl_float4),
-        host_buffer,
+        nodes,
         0,
         NULL,
         NULL);
-
-    clEnqueueReadBuffer(
-        command_queue,
-        device_a,
-        CL_TRUE,
-        0,
-        SAMPLE_SIZE * sizeof(cl_float4),
-        host_a,
-        0,
-        NULL,
-        NULL);
-
-    clEnqueueReadBuffer(
-        command_queue,
-        device_b,
-        CL_TRUE,
-        0,
-        SAMPLE_SIZE * sizeof(cl_float4),
-        host_b,
-        0,
-        NULL,
-        NULL);
-
-    for (i = 0; i < SAMPLE_SIZE; ++i)
-    {
-        // printf("A: [%d] = %d, ", i, host_a[i]);
-        // printf("B: [%d] = %d, ", i, host_b[i]);
-        printf("host buffer X: [%d] = %lf\n", i, host_buffer[i].x);
-        printf("host buffer Y: [%d] = %lf\n", i, host_buffer[i].y);
-        printf("host buffer Z: [%d] = %lf\n", i, host_buffer[i].z);
-        printf("host buffer W: [%d] = %lf\n", i, host_buffer[i].w);
-    }
 
     // Release the resources
     clReleaseKernel(kernel);
@@ -240,7 +165,5 @@ void gpu_start()
     clReleaseContext(context);
     clReleaseDevice(device_id);
 
-    free(host_buffer);
-    free(host_a);
-    free(host_b);
+    free(nodes);
 }

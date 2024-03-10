@@ -5,6 +5,8 @@
 
 #include "node.h"
 #include "bfs.h"
+#include "cpu.h"
+#include "gpu.h"
 
 int main(int argc, char *argv[])
 {
@@ -33,21 +35,8 @@ int main(int argc, char *argv[])
 
     init_nodes(nodes, number_of_nodes);
 
-    double seq_runtime;
-    seq_runtime = bfsSequential(nodes, number_of_nodes);
-    printf("%d db csompont eseten a szekvencialis futasi ido: %f ms\n", number_of_nodes, seq_runtime);
-
-    double parallel_runtime;
-    parallel_runtime = startThreads(nodes, number_of_threads, number_of_nodes);
-    printf("%d db csomopont eseten %d szalon a futasi ido: %f ms\n", number_of_nodes, number_of_threads, parallel_runtime);
-
-    int num_of_visited_nodes;
-    num_of_visited_nodes = countVisitedNodes(nodes, number_of_nodes);
-    printf("Bejart csomopontok szama: %d\n", num_of_visited_nodes);
-
-    freeNodeEdges(nodes, number_of_nodes);
-
-    free(nodes);
+    //gpu_start(nodes, number_of_nodes);
+    cpu_start(nodes, number_of_nodes, number_of_threads);
 
     return 0;
 }
