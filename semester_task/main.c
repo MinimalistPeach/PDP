@@ -1,8 +1,8 @@
 #include "gpu.h"
 #include "cpu.h"
 
-#define NUM_PARTICLES 1000000
-const float DT = 99999.999f;
+#define NUM_PARTICLES 100000
+const float DT = 2.5f;
 
 int main(void)
 {
