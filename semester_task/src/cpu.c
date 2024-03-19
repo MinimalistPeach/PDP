@@ -66,8 +66,8 @@ void start_cpu_particle_updates(int _num_particles, float dt, Particle *particle
     for (int i = 0; i < num_threads; i++)
     {
         pthread_join(threads[i], NULL);
-    }
 
-    clock_t end = clock();
-    printf("CPU runtime: %.0f ms\n", (double)(end - start));
+        clock_t end = clock();
+        printf("CPU %d thread runtime: %.0f ms\n", i+1, (double)(end - start));
+    }
 }
