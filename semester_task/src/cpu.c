@@ -69,5 +69,5 @@ void start_cpu_particle_updates(int _num_particles, float dt, Particle *particle
     }
 
     clock_t end = clock();
-    printf("CPU runtime: %f ms\n", (double)(end - start));
+    printf("CPU runtime: %.0f ms\n", (double)(end - start));
 }

@@ -81,28 +81,22 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
 
     particles_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(Particle) * NUM_PARTICLES, particles, &err);
     randoms_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 2 * NUM_PARTICLES, randoms, &err);
-    dt_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * dt, &dt, &err);
-    randX_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int) * randX, &randX, &err);
-    randY_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int) * randY, &randY, &err);
-    randVX_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int) * randVX, &randVX, &err);
-    randVY_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int) * randVY, &randVY, &err);
-    NUM_PARTICLES_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(int) * NUM_PARTICLES, &NUM_PARTICLES, &err);
 
     // Set kernel arguments
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &particles_buffer);
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &randoms_buffer);
-    clSetKernelArg(kernel, 2, sizeof(cl_mem), &dt_buffer);
-    clSetKernelArg(kernel, 3, sizeof(cl_mem), &randX_buffer);
-    clSetKernelArg(kernel, 4, sizeof(cl_mem), &randY_buffer);
-    clSetKernelArg(kernel, 5, sizeof(cl_mem), &randVX_buffer);
-    clSetKernelArg(kernel, 6, sizeof(cl_mem), &randVY_buffer);
-    clSetKernelArg(kernel, 7, sizeof(cl_mem), &NUM_PARTICLES_buffer);
+    clSetKernelArg(kernel, 2, sizeof(float), &dt);
+    clSetKernelArg(kernel, 3, sizeof(int), &randX);
+    clSetKernelArg(kernel, 4, sizeof(int), &randY);
+    clSetKernelArg(kernel, 5, sizeof(int), &randVX);
+    clSetKernelArg(kernel, 6, sizeof(int), &randVY);
+    clSetKernelArg(kernel, 7, sizeof(int), &NUM_PARTICLES);
 
     // Create the command queue
     cl_command_queue command_queue = clCreateCommandQueue(
         context, device_id, CL_QUEUE_PROFILING_ENABLE, NULL);
 
-    size_t global_size = 128;
+    size_t global_size = 2;
     cl_event event;
     clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL, &global_size, NULL, 0, NULL, &event);
 
