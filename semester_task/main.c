@@ -1,7 +1,7 @@
 #include "gpu.h"
 #include "cpu.h"
 
-#define NUM_PARTICLES 1000000
+#define NUM_PARTICLES 10000000
 const float DT = 1.2f;
 
 int main(void)
@@ -15,7 +15,7 @@ int main(void)
     int randVX = rand();
     int randVY = rand();
 
-    start_cpu_particle_updates(NUM_PARTICLES, DT, particles, randoms, 2, randX, randY, randVX, randVY);
+    start_cpu_particle_updates(NUM_PARTICLES, DT, particles, randoms, 8, randX, randY, randVX, randVY);
     start_gpu_particle_updates(NUM_PARTICLES, DT, particles, randoms, randX, randY, randVX, randVY);
 
     free(particles);
