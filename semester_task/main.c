@@ -15,7 +15,7 @@ int main(void)
     int randVX = rand();
     int randVY = rand();
 
-    start_cpu_particle_updates(NUM_PARTICLES, DT, particles, randoms, 8, randX, randY, randVX, randVY);
+    start_cpu_particle_updates(NUM_PARTICLES, DT, particles, randoms, 1, randX, randY, randVX, randVY);
     start_gpu_particle_updates(NUM_PARTICLES, DT, particles, randoms, randX, randY, randVX, randVY);
 
     free(particles);

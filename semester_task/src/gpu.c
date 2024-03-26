@@ -97,9 +97,8 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
         context, device_id, CL_QUEUE_PROFILING_ENABLE, NULL);
 
     size_t global_size = 1024;
-    size_t local_size = 1024;
     cl_event event;
-    clEnqueueNDRangeKernel(command_queue, kernel, 0, NULL, &global_size, &local_size, 0, NULL, &event);
+    clEnqueueNDRangeKernel(command_queue, kernel, 0, NULL, &global_size, NULL, 0, NULL, &event);
 
     clFinish(command_queue);
 

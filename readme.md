@@ -22,7 +22,7 @@ A véletlenszerű számok tömbjének a deklarálása is itt történik meg, ami
 A belépési ponton két függvény hívása történik meg, az egyik a CPU-n hajtja végre a részecske mozgatást, a másik a GPU-n. A CPU hívó függvény egyik paramétere a szálak száma, ennek a számnak a változtatásával növelhető vagy csökkenthető a CPU futási ideje.
 
 ## CPU végrehajtás
-Legelőször szétosztásra kerül a szálak között a probléma mérete, ezáltal a részecskék bizonyos részének pozícióját és sebességét számítja 1-1 szál.
+Legelőször szétosztásra kerül a szálak között a probléma mérete, ezáltal a részecskék bizonyos részének pozícióját és sebességét számítja 1-1 szál. A CPU futási időt a clock() függvény valósítja meg, ami az éppen aktuális CPU időt kéri le. A szálak létrehozásánál kéri le a CPU időt, ez lesz a kiindulási idő, majd a szálak befejezésekor kéri le újra a CPU időt, ez lesz a befejezési idő. Ezeket kivonva kapjuk meg a futási időt ms-ben.
 
 ## GPU végrehajtás
 GPU végrehajtás esetén először inicializálásra kerül a részecske és a véletlenszerű szám buffer, amelyet a kernel fog felhasználni. Ezt követően a kernel-be arugmentumokként vannak megadva a különböző számításhoz szükséges számok. Ezen számok nagy része véletlenszerű. Ezt azért szükséges arugmentumként átadni, mivel az OpenCL-ben nem vagy csak nagyon nehezen lehet véletlenszerű számot generálni. Definiálásra kerül továbbá a GPU magok száma. Ezt követően elindul a GPU-n a számítás, aminek futási idejét profilozással lehet mérni. A profilozás ns-ben méri az időt, amit 10^6-al elosztva kapjuk meg a futási időt ms-ben.
