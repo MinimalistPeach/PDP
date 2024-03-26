@@ -2,6 +2,11 @@
 
 ## Féléves beadandó feladat: *Részecske mozgás szimuláció*
 
+
+## Futtatás
+A program futtatásához szükséges az OpenCL SDK. A makefile-ban lévő gcc fordító elérési útvonalát szükséges átírni a saját gcc fordító útvonalára. A *make* parancs kiadásával hozható létre a futtatható állomány.
+
+## Feladat leírása
 A féléves beadandó feladatom témája a részecskék véletlenszerű mozgása köré épül. <br/>
 A probléma méretét a részecskék száma határozza meg, ez a program belépési pontjában van definiálva:
 
