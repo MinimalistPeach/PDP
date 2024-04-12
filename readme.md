@@ -3,11 +3,8 @@
 ## Féléves beadandó feladat: *Részecske mozgás szimuláció*
 
 
-<img src="semester_task/diagram.png">
-
-
 ## Futtatás
-A program futtatásához szükséges az OpenCL SDK. A makefile-ban lévő gcc fordító elérési útvonalát szükséges átírni a saját gcc fordító útvonalára. A *make* parancs kiadásával hozható létre a futtatható állomány.
+A program futtatásához szükséges az OpenCL SDK. A makefile-ban lévő gcc fordító elérési útvonalát szükséges átírni a saját gcc fordító útvonalára. A *make* parancs kiadásával hozható létre a futtatható állomány. Futtatáshoz használjuk a *.\main.exe <szálak_száma> <részecskék_száma>* parancsot.
 
 ## Feladat leírása
 A féléves beadandó feladatom témája a részecskék véletlenszerű mozgása köré épül. <br/>
@@ -34,4 +31,11 @@ Legelőször szétosztásra kerül a szálak között a probléma mérete, ezál
 
 ## GPU végrehajtás
 GPU végrehajtás esetén először inicializálásra kerül a részecske és a véletlenszerű szám buffer, amelyet a kernel fog felhasználni. Ezt követően a kernel-be arugmentumokként vannak megadva a különböző számításhoz szükséges számok. Ezen számok nagy része véletlenszerű. Ezt azért szükséges arugmentumként átadni, mivel az OpenCL-ben nem vagy csak nagyon nehezen lehet véletlenszerű számot generálni. Definiálásra kerül továbbá a GPU magok száma. Ezt követően elindul a GPU-n a számítás, aminek futási idejét profilozással lehet mérni. A profilozás ns-ben méri az időt, amit 10^6-al elosztva kapjuk meg a futási időt ms-ben.
+
+
+## Futási idők
+A program futási ideje a következőképp alakul:
+<img src="semester_task/diagram.png">
+
+Látható, hogy a GPU-n végrehajtott műveletek közel konstans idővel futnak az összes teszt során, ezzel szemben a CPU-n végzett tesztek futási ideje növekedést mutat, nagyon magas részecskeszámnál pedig hátrányt mutat a párhuzamosítás.
 
