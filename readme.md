@@ -3,6 +3,9 @@
 ## Féléves beadandó feladat: *Részecske mozgás szimuláció*
 
 
+<img src="semester_task/diagram.png">
+
+
 ## Futtatás
 A program futtatásához szükséges az OpenCL SDK. A makefile-ban lévő gcc fordító elérési útvonalát szükséges átírni a saját gcc fordító útvonalára. A *make* parancs kiadásával hozható létre a futtatható állomány.
 

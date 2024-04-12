@@ -44,8 +44,6 @@ void start_cpu_particle_updates(int _num_particles, float dt, Particle *particle
     pthread_t threads[num_threads];
     ThreadData thread_data[num_threads];
 
-    CPURunningTime cpu_running_time[num_threads];
-
     int particles_per_thread = _num_particles / num_threads;
 
     NUM_PARTICLES = _num_particles;
@@ -63,24 +61,15 @@ void start_cpu_particle_updates(int _num_particles, float dt, Particle *particle
         thread_data[i].dt = dt;
         thread_data[i].particles = particles;
         thread_data[i].randoms = randoms;
-        cpu_running_time[i].start = clock();
         pthread_create(&threads[i], NULL, update_particles_thread, &thread_data[i]);
     }
 
     for (int i = 0; i < num_threads; i++)
     {
         pthread_join(threads[i], NULL);
-
-        cpu_running_time[i].end = clock();
     }
 
     clock_t end = clock();
 
-
-    for (int i = 0; i < num_threads; i++)
-    {
-        printf("Thread %d runtime: %.0f ms\n", i, ((double)(cpu_running_time[i].end - cpu_running_time[i].start)));
-    }
-
-    printf("CPU Runtime: %.0f ms\n", ((double)(end-start)));
+    printf("CPU Runtime with %d threads: %.0f ms\n", num_threads, ((double)(end-start)));
 }
