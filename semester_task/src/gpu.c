@@ -1,17 +1,22 @@
 #include "gpu.h"
 
-int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles, float *randoms, int randX, int randY, int randVX, int randVY)
+int startGpuParticleUpdates(int numParticles, float dt, 
+                                Particle *particles, float *randoms, 
+                                int randX, int randY, 
+                                int randVX, int randVY)
 {
     int i;
     cl_int err;
-    int error_code;
+    int errorCode;
 
-    cl_mem particles_buffer, randoms_buffer, dt_buffer, randX_buffer, randY_buffer, randVX_buffer, randVY_buffer, NUM_PARTICLES_buffer;
+    cl_mem particlesBuffer, randomsBuffer, 
+        dtBuffer, randXBuffer, randYBuffer, 
+        randVXBuffer, randVYBuffer, numParticlesBuffer;
 
     // Get platform
-    cl_uint n_platforms;
-    cl_platform_id platform_id;
-    err = clGetPlatformIDs(1, &platform_id, &n_platforms);
+    cl_uint nPlatforms;
+    cl_platform_id platformId;
+    err = clGetPlatformIDs(1, &platformId, &nPlatforms);
     if (err != CL_SUCCESS)
     {
         printf("[ERROR] Error calling clGetPlatformIDs. Error code: %d\n", err);
@@ -19,14 +24,14 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
     }
 
     // Get device
-    cl_device_id device_id;
-    cl_uint n_devices;
+    cl_device_id deviceId;
+    cl_uint nDevices;
     err = clGetDeviceIDs(
-        platform_id,
+        platformId,
         CL_DEVICE_TYPE_GPU,
         1,
-        &device_id,
-        &n_devices);
+        &deviceId,
+        &nDevices);
     if (err != CL_SUCCESS)
     {
         printf("[ERROR] Error calling clGetDeviceIDs. Error code: %d\n", err);
@@ -34,21 +39,21 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
     }
 
     // Create OpenCL context
-    cl_context context = clCreateContext(NULL, n_devices, &device_id, NULL, NULL, NULL);
+    cl_context context = clCreateContext(NULL, nDevices, &deviceId, NULL, NULL, NULL);
 
     // Build the program
-    const char *kernel_code = load_kernel_source("kernels/update_particles.cl", &error_code);
-    if (error_code != 0)
+    const char *kernelCode = load_kernel_source("kernels/update_particles.cl", &errorCode);
+    if (errorCode != 0)
     {
         printf("Source code loading error!\n");
         return 0;
     }
-    cl_program program = clCreateProgramWithSource(context, 1, &kernel_code, NULL, NULL);
+    cl_program program = clCreateProgramWithSource(context, 1, &kernelCode, NULL, NULL);
     const char options[] = "";
     err = clBuildProgram(
         program,
         1,
-        &device_id,
+        &deviceId,
         options,
         NULL,
         NULL);
@@ -58,7 +63,7 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
         size_t real_size;
         err = clGetProgramBuildInfo(
             program,
-            device_id,
+            deviceId,
             CL_PROGRAM_BUILD_LOG,
             0,
             NULL,
@@ -66,7 +71,7 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
         char *build_log = (char *)malloc(sizeof(char) * (real_size + 1));
         err = clGetProgramBuildInfo(
             program,
-            device_id,
+            deviceId,
             CL_PROGRAM_BUILD_LOG,
             real_size + 1,
             build_log,
@@ -79,22 +84,22 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
     }
     cl_kernel kernel = clCreateKernel(program, "update_particles", NULL);
 
-    particles_buffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(Particle) * NUM_PARTICLES, particles, &err);
-    randoms_buffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 2 * NUM_PARTICLES, randoms, &err);
+    particlesBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(Particle) * numParticles, particles, &err);
+    randomsBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 2 * numParticles, randoms, &err);
 
     // Set kernel arguments
-    clSetKernelArg(kernel, 0, sizeof(cl_mem), &particles_buffer);
-    clSetKernelArg(kernel, 1, sizeof(cl_mem), &randoms_buffer);
+    clSetKernelArg(kernel, 0, sizeof(cl_mem), &particlesBuffer);
+    clSetKernelArg(kernel, 1, sizeof(cl_mem), &randomsBuffer);
     clSetKernelArg(kernel, 2, sizeof(float), &dt);
     clSetKernelArg(kernel, 3, sizeof(int), &randX);
     clSetKernelArg(kernel, 4, sizeof(int), &randY);
     clSetKernelArg(kernel, 5, sizeof(int), &randVX);
     clSetKernelArg(kernel, 6, sizeof(int), &randVY);
-    clSetKernelArg(kernel, 7, sizeof(int), &NUM_PARTICLES);
+    clSetKernelArg(kernel, 7, sizeof(int), &numParticles);
 
     // Create the command queue
     cl_command_queue command_queue = clCreateCommandQueue(
-        context, device_id, CL_QUEUE_PROFILING_ENABLE, NULL);
+        context, deviceId, CL_QUEUE_PROFILING_ENABLE, NULL);
 
     size_t global_size = 1024;
     cl_event event;
@@ -133,8 +138,8 @@ int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles,
     clReleaseKernel(kernel);
     clReleaseProgram(program);
     clReleaseContext(context);
-    clReleaseDevice(device_id);
-    clReleaseMemObject(particles_buffer);
-    clReleaseMemObject(randoms_buffer);
+    clReleaseDevice(deviceId);
+    clReleaseMemObject(particlesBuffer);
+    clReleaseMemObject(randomsBuffer);
     clReleaseCommandQueue(command_queue);
 }

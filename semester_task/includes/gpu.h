@@ -12,7 +12,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-int start_gpu_particle_updates(int NUM_PARTICLES, float dt, Particle *particles, float *randoms, int randX, int randY, int randVX, int randVY);
+int startGpuParticleUpdates(int numParticles, float dt, Particle *particles, 
+                                float *randoms, int randX, int randY, 
+                                int randVX, int randVY);
 
 
 #endif // GPU_H

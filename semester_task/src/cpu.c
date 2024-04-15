@@ -9,13 +9,13 @@ typedef struct
     float *randoms;
 } ThreadData;
 
-int NUM_PARTICLES = 0;
+int numParticles = 0;
 int randX, randY, randVX, randVY = 0;
 
-void *update_particles_thread(void *arg)
+void *updateParticlesThread(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
-    for (int i = 0; i < NUM_PARTICLES; i++)
+    for (int i = 0; i < numParticles; i++)
     {
         data->particles[i].position.x = randX / (float)RAND_MAX;
         data->particles[i].position.y = randY / (float)RAND_MAX;
@@ -39,14 +39,17 @@ void *update_particles_thread(void *arg)
     return NULL;
 }
 
-void start_cpu_particle_updates(int _num_particles, float dt, Particle *particles, float *randoms, int num_threads, int _randX, int _randY, int _randVX, int _randVY)
+void startCpuParticleUpdates(int _numParticles, float dt, 
+                                Particle *particles, float *randoms, 
+                                int numThreads, int _randX, 
+                                int _randY, int _randVX, int _randVY)
 {
-    pthread_t threads[num_threads];
-    ThreadData thread_data[num_threads];
+    pthread_t threads[numThreads];
+    ThreadData thread_data[numThreads];
 
-    int particles_per_thread = _num_particles / num_threads;
+    int particlesPerThread = _numParticles / numThreads;
 
-    NUM_PARTICLES = _num_particles;
+    numParticles = _numParticles;
     randX = _randX;
     randY = _randY;
     randVX = _randVX;
@@ -54,22 +57,22 @@ void start_cpu_particle_updates(int _num_particles, float dt, Particle *particle
 
     clock_t start = clock();
 
-    for (int i = 0; i < num_threads; i++)
+    for (int i = 0; i < numThreads; i++)
     {
-        thread_data[i].start = i * particles_per_thread;
-        thread_data[i].end = (i == num_threads - 1) ? _num_particles : (i + 1) * particles_per_thread;
+        thread_data[i].start = i * particlesPerThread;
+        thread_data[i].end = (i == numThreads - 1) ? _numParticles : (i + 1) * particlesPerThread;
         thread_data[i].dt = dt;
         thread_data[i].particles = particles;
         thread_data[i].randoms = randoms;
-        pthread_create(&threads[i], NULL, update_particles_thread, &thread_data[i]);
+        pthread_create(&threads[i], NULL, updateParticlesThread, &thread_data[i]);
     }
 
-    for (int i = 0; i < num_threads; i++)
+    for (int i = 0; i < numThreads; i++)
     {
         pthread_join(threads[i], NULL);
     }
 
     clock_t end = clock();
 
-    printf("CPU Runtime with %d threads: %.0f ms\n", num_threads, ((double)(end-start)));
+    printf("CPU Runtime with %d threads: %.0f ms\n", numThreads, ((double)(end-start)));
 }

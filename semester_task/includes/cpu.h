@@ -14,7 +14,9 @@ typedef struct
     clock_t end;
 } CPURunningTime;
 
-void start_cpu_particle_updates(int num_particles, float dt, Particle *particles, float *randoms, int num_threads, int randX, int randY, int randVX, int randVY);
+void startCpuParticleUpdates(int numParticle, float dt, Particle *particles, 
+                                float *randoms, int numThreads, int randX, 
+                                int randY, int randVX, int randVY);
 
 
 #endif // CPU_H
