@@ -56,9 +56,12 @@ void startCpuParticleUpdates(int _numParticles, float dt,
     randVY = _randVY;
 
     clock_t start = clock();
+    clock_t data_transfer_start;
+    clock_t data_transfer_end;
 
     for (int i = 0; i < numThreads; i++)
     {
+        data_transfer_start = clock();
         thread_data[i].start = i * particlesPerThread;
         thread_data[i].end = (i == numThreads - 1) ? _numParticles : (i + 1) * particlesPerThread;
         thread_data[i].dt = dt;
@@ -70,9 +73,11 @@ void startCpuParticleUpdates(int _numParticles, float dt,
     for (int i = 0; i < numThreads; i++)
     {
         pthread_join(threads[i], NULL);
+        data_transfer_end = clock();
     }
 
     clock_t end = clock();
 
     printf("CPU Runtime with %d threads: %.0f ms\n", numThreads, ((double)(end-start)));
+    printf("Data transfer time: %.0f ms\n", ((double)(end-start)-(double)(data_transfer_end-data_transfer_start)));
 }

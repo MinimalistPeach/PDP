@@ -87,6 +87,7 @@ int startGpuParticleUpdates(int numParticles, float dt,
     particlesBuffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(Particle) * numParticles, particles, &err);
     randomsBuffer = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, sizeof(float) * 2 * numParticles, randoms, &err);
 
+    clock_t data_transfer_start = clock();
     // Set kernel arguments
     clSetKernelArg(kernel, 0, sizeof(cl_mem), &particlesBuffer);
     clSetKernelArg(kernel, 1, sizeof(cl_mem), &randomsBuffer);
@@ -108,13 +109,13 @@ int startGpuParticleUpdates(int numParticles, float dt,
     clFinish(command_queue);
 
     // Show profiling information
-    cl_ulong startNs;
-    cl_ulong endNs;
+    cl_ulong startMs;
+    cl_ulong endMs;
     err = clGetEventProfilingInfo(
         event,
         CL_PROFILING_COMMAND_QUEUED,
-        sizeof(startNs),
-        &startNs,
+        sizeof(startMs),
+        &startMs,
         NULL);
     if (err == CL_PROFILING_INFO_NOT_AVAILABLE)
     {
@@ -129,10 +130,12 @@ int startGpuParticleUpdates(int numParticles, float dt,
     clGetEventProfilingInfo(
         event,
         CL_PROFILING_COMMAND_END,
-        sizeof(endNs),
-        &endNs,
+        sizeof(endMs),
+        &endMs,
         NULL);
-    printf("GPU Runtime: %lu ms\n", (endNs - startNs) / 1000000);
+    clock_t data_transfer_end = clock();
+    printf("GPU Runtime: %lu ms\n", (endMs - startMs) / 1000000);
+    printf("Data transfer time: %lu ms\n", ((endMs - startMs) / 1000000) - (double)(data_transfer_end - data_transfer_start));
 
     // Release the resources
     clReleaseKernel(kernel);
