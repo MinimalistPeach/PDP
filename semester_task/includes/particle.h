@@ -2,12 +2,12 @@
 #define PARTICLE_H
 
 
-#include "float2.h"
+#include "vector.h"
 
 typedef struct
 {
-    float2 position;
-    float2 velocity;
+    vector position;
+    vector velocity;
 } Particle;
 
 #endif // PARTICLE_H

@@ -9,13 +9,13 @@ typedef struct
     float *randoms;
 } ThreadData;
 
-int numParticles = 0;
+int gNumParticles = 0;
 int randX, randY, randVX, randVY = 0;
 
 void *updateParticlesThread(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
-    for (int i = 0; i < numParticles; i++)
+    for (int i = 0; i < gNumParticles; i++)
     {
         data->particles[i].position.x = randX / (float)RAND_MAX;
         data->particles[i].position.y = randY / (float)RAND_MAX;
@@ -49,7 +49,7 @@ void startCpuParticleUpdates(int _numParticles, float dt,
 
     int particlesPerThread = _numParticles / numThreads;
 
-    numParticles = _numParticles;
+    gNumParticles = _numParticles;
     randX = _randX;
     randY = _randY;
     randVX = _randVX;
